@@ -1,4 +1,4 @@
-local open_dialog = function ()
+local open_dialog = function()
     require("telescope").extensions.file_browser.file_browser()
 end
 
@@ -9,10 +9,10 @@ return {
 
         dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
 
-        config = function ()
+        config = function()
             require("telescope").load_extension("file_browser")
 
-            vim.keymap.set('n', '<leader>ff', open_dialog, { buffer = bufnr, desc = 'Open file browser' })
+            vim.keymap.set('n', '<leader>fb', open_dialog, { buffer = bufnr, desc = 'Open file browser' })
         end,
     }
 }
