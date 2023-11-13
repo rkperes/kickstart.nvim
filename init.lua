@@ -629,6 +629,23 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
+require('lspconfig').gopls.setup {
+  -- cmd = { "/opt/go/path/bin/gopls", "-remote=auto" },
+  cmd = { vim.env.GOPATH .. "/bin/gopls", "-remote=auto" },
+  flags = {
+    debounce_text_changes = 1000,
+  },
+  init_options = {
+    analyses = {
+      unusedparams = true,
+    },
+    staticcheck = true,
+    gofumpt = true,
+    memoryMode = "DegradeClosed",
+  },
+  capabilities = capabilities,
+}
+
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require 'cmp'
