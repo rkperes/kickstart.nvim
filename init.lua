@@ -41,6 +41,9 @@ P.S. You can delete this when you're done too. It's your config now :)
 -- Set <space> as the leader key
 -- See `:help mapleader`
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
+
+vim.env.PATH = vim.env.VIM_PATH or vim.env.PATH
+
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
