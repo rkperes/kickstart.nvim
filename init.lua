@@ -287,6 +287,8 @@ require('lazy').setup({
     build = ':TSUpdate',
   },
 
+  { 'ojroques/nvim-osc52' },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -495,7 +497,7 @@ vim.api.nvim_set_keymap(
   "n",
   "<leader>fb",
   ":Telescope file_browser<CR>",
-  { noremap = true }
+  { noremap = true, desc = 'Open file browser (cwd)' }
 )
 
 -- open file_browser with the path of the current buffer
@@ -503,7 +505,7 @@ vim.api.nvim_set_keymap(
   "n",
   "<leader>fc",
   ":Telescope file_browser path=%:p:h select_buffer=true<CR>",
-  { noremap = true, desc = 'Open file browser in current file' }
+  { noremap = true, desc = 'Open file browser (current buffer)' }
 )
 require("telescope").load_extension("file_browser")
 
@@ -846,3 +848,11 @@ require('catppuccin').setup({
 
 -- setup must be called before loading
 vim.cmd.colorscheme "catppuccin"
+
+-- delete into blackhole register
+vim.keymap.set({ 'n', 'v' }, 'd', '"_d')
+vim.keymap.set({ 'n', 'v' }, 'x', '"_x')
+
+vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, { expr = true, desc = '[Y]ank (OSC52)' })
+vim.keymap.set('n', '<leader>yy', '<leader>y_', { remap = true, desc = '[Y]ank (OSC52)' })
+vim.keymap.set('v', '<leader>y', require('osc52').copy_visual, { desc = '[Y]ank (OSC52)' })
