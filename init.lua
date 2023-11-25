@@ -2,7 +2,7 @@
 
 =====================================================================
 ==================== READ THIS BEFORE CONTINUING ====================
-=====================================================================
+=====================================================================init
 
 Kickstart.nvim is *not* a distribution.
 
@@ -43,6 +43,10 @@ P.S. You can delete this when you're done too. It's your config now :)
 --  NOTE: Must happen before plugins are required (otherwise wrong leader will be used)
 
 vim.env.PATH = vim.env.VIM_PATH or vim.env.PATH
+
+-- handle italic in tmux
+-- set &t_ZH="\e[3m"
+-- set &t_ZR="\e[23m"
 
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
@@ -150,9 +154,9 @@ require('lazy').setup({
         end
 
         -- Navigation
-        map({ 'n', 'v' }, ']c', function()
+        map({ 'n', 'v' }, ']h', function()
           if vim.wo.diff then
-            return ']c'
+            return ']h'
           end
           vim.schedule(function()
             gs.next_hunk()
@@ -160,9 +164,9 @@ require('lazy').setup({
           return '<Ignore>'
         end, { expr = true, desc = 'Jump to next hunk' })
 
-        map({ 'n', 'v' }, '[c', function()
+        map({ 'n', 'v' }, '[h', function()
           if vim.wo.diff then
-            return '[c'
+            return '[h'
           end
           vim.schedule(function()
             gs.prev_hunk()
@@ -194,27 +198,29 @@ require('lazy').setup({
         end, { desc = 'git diff against last commit' })
 
         -- Toggles
-        map('n', '<leader>tb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
-        map('n', '<leader>td', gs.toggle_deleted, { desc = 'toggle git show deleted' })
+        map('n', '<leader>gb', gs.toggle_current_line_blame, { desc = 'toggle git blame line' })
+        map('n', '<leader>gd', gs.toggle_deleted, { desc = 'toggle git show deleted' })
 
         -- Text object
-        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
+        map({ 'o', 'x' }, 'hi', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
   },
 
+  -- {
+  --   -- Theme inspired by Atom
+  --   'navarasu/onedark.nvim',
+  --   priority = 1000,
+  --   config = function()
+  --     vim.cmd.colorscheme 'onedark'
+  --   end,
+  -- },
+
   {
-    -- Theme inspired by Atom
-    'navarasu/onedark.nvim',
+    "catppuccin/nvim",
+    name = "catppucin",
     priority = 1000,
     lazy = false,
-    config = function()
-      require('onedark').setup {
-        -- Set a style preset. 'dark' is default.
-        style = 'dark', -- dark, darker, cool, deep, warm, warmer, light
-      }
-      require('onedark').load()
-    end,
   },
 
   {
@@ -262,6 +268,14 @@ require('lazy').setup({
         end,
       },
     },
+  },
+
+
+  {
+    "nvim-telescope/telescope-file-browser.nvim",
+    lazy = false,
+
+    dependencies = { "nvim-telescope/telescope.nvim", "nvim-lua/plenary.nvim" },
   },
 
   {
@@ -432,12 +446,66 @@ vim.keymap.set('n', '<leader>s/', telescope_live_grep_open_files, { desc = '[S]e
 vim.keymap.set('n', '<leader>ss', require('telescope.builtin').builtin, { desc = '[S]earch [S]elect Telescope' })
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+-- vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+-- vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<leader>sG', ':LiveGrepGitRoot<cr>', { desc = '[S]earch by [G]rep on Git Root' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
+
+require('telescope').setup {
+  pickers = {
+    buffers = {
+      sort_lastused = true,
+      ignore_current_buffer = true,
+    }
+  },
+
+  extensions = {
+    mappings = {
+      n = {
+        ["<leader>fB"] = function(prompt_bufnr)
+          local git_root_path = find_git_root()
+          local current_picker = require("telescope.actions.state").get_current_picker(prompt_bufnr)
+          local finder = current_picker.finder
+          if finder.files then
+            finder.path = git_root_path
+          else
+            finder.cwd = git_root_path
+          end
+          require("telescope._extensions.file_browser.utils").redraw_border_title(current_picker)
+          current_picker:refresh(finder, { reset_prompt = true, multi = current_picker._multi })
+        end
+      }
+    }
+  }
+}
+
+vim.keymap.set('n', '<leader>ff', require('telescope.builtin').find_files, { desc = '[F]ind [F]iles (cwd)' })
+vim.keymap.set('n', '<leader>fF', require('telescope.builtin').git_files, { desc = '[F]ind [F]iles (Git root)' })
+
+-- Configure telescope-file-browser
+local open_dialog = function()
+  require("telescope").extensions.file_browser.file_browser()
+end
+
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>fb",
+  ":Telescope file_browser<CR>",
+  { noremap = true }
+)
+
+-- open file_browser with the path of the current buffer
+vim.api.nvim_set_keymap(
+  "n",
+  "<leader>fc",
+  ":Telescope file_browser path=%:p:h select_buffer=true<CR>",
+  { noremap = true, desc = 'Open file browser in current file' }
+)
+require("telescope").load_extension("file_browser")
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -638,6 +706,9 @@ mason_lspconfig.setup_handlers {
 require('lspconfig').gopls.setup {
   -- cmd = { "/opt/go/path/bin/gopls", "-remote=auto" },
   cmd = { vim.env.GOPATH .. "/bin/gopls", "-remote=auto" },
+
+  on_attach = on_attach,
+
   flags = {
     debounce_text_changes = 1000,
   },
@@ -706,3 +777,72 @@ cmp.setup {
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
+
+-- setup must be called before loading
+require('catppuccin').setup({
+  flavour = "mocha",             -- latte, frappe, macchiato, mocha
+  transparent_background = true, -- disables setting the background color.
+  show_end_of_buffer = false,    -- shows the '~' characters after the end of buffers
+  term_colors = false,           -- sets terminal colors (e.g. `g:terminal_color_0`)
+  dim_inactive = {
+    enabled = false,             -- dims the background color of inactive window
+    shade = "dark",
+    percentage = 0.15,           -- percentage of the shade to apply to the inactive window
+  },
+  no_italic = false,             -- Force no italic
+  no_bold = false,               -- Force no bold
+  no_underline = false,          -- Force no underline
+  styles = {                     -- Handles the styles of general hi groups (see `:h highlight-args`):
+    comments = { "italic" },     -- Change the style of comments
+    conditionals = { "italic" },
+    loops = { "italic" },
+    functions = {},
+    keywords = { "italic" },
+    strings = {},
+    variables = {},
+    numbers = {},
+    booleans = {},
+    properties = {},
+    types = {},
+    operators = {},
+  },
+  color_overrides = {},
+  custom_highlights = {},
+  integrations = {
+    cmp = true,
+    gitsigns = true,
+    nvimtree = true,
+    treesitter = true,
+    notify = false,
+    mini = {
+      enabled = true,
+      indentscope_color = "",
+    },
+    telescope = {
+      enabled = true,
+      style = "nvchad"
+    },
+    native_lsp = {
+      enabled = true,
+      virtual_text = {
+        errors = { "italic" },
+        hints = { "italic" },
+        warnings = { "italic" },
+        information = { "italic" },
+      },
+      underlines = {
+        errors = { "underline" },
+        hints = { "underline" },
+        warnings = { "underline" },
+        information = { "underline" },
+      },
+      inlay_hints = {
+        background = true,
+      },
+    },
+    -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
+  },
+})
+
+-- setup must be called before loading
+vim.cmd.colorscheme "catppuccin"
