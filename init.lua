@@ -313,6 +313,11 @@ require('lazy').setup({
 
   { 'ojroques/nvim-osc52' },
 
+  {
+    'ThePrimeagen/harpoon',
+    dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -482,10 +487,15 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = '[S]earch [R]esume' })
 
 require('telescope').setup {
+  settings = {
+    initial_mode = "normal",
+  },
+
   pickers = {
     buffers = {
       sort_lastused = true,
       ignore_current_buffer = true,
+      initial_mode = "normal",
     }
   },
 
@@ -532,6 +542,14 @@ vim.api.nvim_set_keymap(
   { noremap = true, desc = 'Open file browser (current buffer)' }
 )
 require("telescope").load_extension("file_browser")
+
+-- Configure harpoon + telescope
+require("telescope").load_extension('harpoon')
+
+vim.keymap.set({ 'n', 'v' }, '<leader>nn', require("harpoon.mark").add_file, { desc = "Mark current file" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nm', ':Telescope harpoon marks<CR>', { desc = "Harpoon menu" })
+vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_prev, { desc = "Previous mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, ']n', require("harpoon.ui").nav_next, { desc = "Next mark (harpoon)" })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -661,6 +679,7 @@ require('which-key').register {
   ['<leader>f'] = { name = '[F]iles', _ = 'which_key_ignore' },
   ['<leader>g'] = { name = '[G]it', _ = 'which_key_ignore' },
   ['<leader>h'] = { name = '[H]unk (more git)', _ = 'which_key_ignore' },
+  ['<leader>n'] = { name = '[N]avigation (harpoon)', _ = 'which_key_ignore' },
   ['<leader>r'] = { name = '[R]ename', _ = 'which_key_ignore' },
   ['<leader>s'] = { name = '[S]earch', _ = 'which_key_ignore' },
   ['<leader>t'] = { name = '[T]oggle', _ = 'which_key_ignore' },
