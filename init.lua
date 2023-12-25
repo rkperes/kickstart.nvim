@@ -103,6 +103,28 @@ require('lazy').setup({
   },
 
   {
+    "jay-babu/mason-null-ls.nvim",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = {
+      "williamboman/mason.nvim",
+      "jose-elias-alvarez/null-ls.nvim",
+    }
+  },
+
+  {
+    "windwp/nvim-ts-autotag",
+    ft = {
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact",
+    },
+    config = function()
+      require("nvim-ts-autotag").setup()
+    end,
+  },
+
+  {
     -- Autocompletion
     'hrsh7th/nvim-cmp',
     dependencies = {
@@ -316,6 +338,10 @@ require('lazy').setup({
   {
     'ThePrimeagen/harpoon',
     dependencies = { 'nvim-lua/plenary.nvim' }
+  },
+
+  {
+    'rmagatti/auto-session',
   },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
@@ -544,12 +570,18 @@ vim.api.nvim_set_keymap(
 require("telescope").load_extension("file_browser")
 
 -- Configure harpoon + telescope
+local harpoon = require("harpoon")
+harpoon.setup()
 require("telescope").load_extension('harpoon')
 
-vim.keymap.set({ 'n', 'v' }, '<leader>nn', require("harpoon.mark").add_file, { desc = "Mark current file" })
-vim.keymap.set({ 'n', 'v' }, '<leader>nm', ':Telescope harpoon marks<CR>', { desc = "Harpoon menu" })
-vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_prev, { desc = "Previous mark (harpoon)" })
-vim.keymap.set({ 'n', 'v' }, ']n', require("harpoon.ui").nav_next, { desc = "Next mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>nn', require("harpoon.mark").add_file, { desc = "Mark current file" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>nm', ':Telescope harpoon marks<CR>', { desc = "Harpoon menu" })
+-- vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_prev, { desc = "Previous mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_next, { desc = "Previous mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>nq', function() harpoon:list():select(1) end, { desc = "Next mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>nw', function() harpoon:list():select(2) end, { desc = "Next mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>ne', function() harpoon:list():select(3) end, { desc = "Next mark (harpoon)" })
+-- vim.keymap.set({ 'n', 'v' }, '<leader>nr', function() harpoon:list():select(4) end, { desc = "Next mark (harpoon)" })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -557,7 +589,7 @@ vim.keymap.set({ 'n', 'v' }, ']n', require("harpoon.ui").nav_next, { desc = "Nex
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
+    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'css', 'vimdoc', 'vim',
       'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -625,6 +657,12 @@ vim.defer_fn(function()
     },
   }
 end, 0)
+
+-- Configure sessions
+require("auto-session").setup {
+  log_level = "error",
+  auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
+}
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
@@ -710,8 +748,12 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   -- rust_analyzer = {},
-  -- tsserver = {},
-  -- html = { filetypes = { 'html', 'twig', 'hbs'} },
+
+  html = { filetypes = { 'html', 'twig', 'hbs' } },
+  cssls = {},
+  tsserver = {},
+  eslint = {},
+  tailwindcss = {},
 
   lua_ls = {
     Lua = {
@@ -722,6 +764,20 @@ local servers = {
     },
   },
 }
+
+local null_ls = require("null-ls")
+null_ls.setup()
+
+local mason_null_ls = require("mason-null-ls")
+mason_null_ls.setup({
+  ensure_installed = { "prettierd" },
+  handlers = {
+    prettierd = function(source_name, methods)
+      null_ls.register(null_ls.builtins.formatting.prettierd)
+    end,
+  }
+})
+
 
 -- Setup neovim lua configuration
 require('neodev').setup()
@@ -747,6 +803,30 @@ mason_lspconfig.setup_handlers {
     }
   end,
 }
+
+-- From https://github.com/neovim/nvim-lspconfig/issues/115
+local set_goimports = function()
+  vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = { "*.go" },
+    callback = function()
+      local params = vim.lsp.util.make_range_params(nil, vim.lsp.util._get_offset_encoding())
+      params.context = { only = { "source.organizeImports" } }
+
+      local result = vim.lsp.buf_request_sync(0, "textDocument/codeAction", params, 3000)
+      for _, res in pairs(result or {}) do
+        for _, r in pairs(res.result or {}) do
+          if r.edit then
+            vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding())
+          else
+            vim.lsp.buf.execute_command(r.command)
+          end
+        end
+      end
+    end,
+  })
+end
+
+set_goimports()
 
 require('lspconfig').gopls.setup {
   -- cmd = { "/opt/go/path/bin/gopls", "-remote=auto" },
