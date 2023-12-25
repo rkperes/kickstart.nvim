@@ -337,6 +337,7 @@ require('lazy').setup({
 
   {
     'ThePrimeagen/harpoon',
+    branch = "harpoon2",
     dependencies = { 'nvim-lua/plenary.nvim' }
   },
 
@@ -571,17 +572,19 @@ require("telescope").load_extension("file_browser")
 
 -- Configure harpoon + telescope
 local harpoon = require("harpoon")
-harpoon.setup()
+harpoon:setup()
 require("telescope").load_extension('harpoon')
 
--- vim.keymap.set({ 'n', 'v' }, '<leader>nn', require("harpoon.mark").add_file, { desc = "Mark current file" })
--- vim.keymap.set({ 'n', 'v' }, '<leader>nm', ':Telescope harpoon marks<CR>', { desc = "Harpoon menu" })
--- vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_prev, { desc = "Previous mark (harpoon)" })
--- vim.keymap.set({ 'n', 'v' }, '[n', require("harpoon.ui").nav_next, { desc = "Previous mark (harpoon)" })
--- vim.keymap.set({ 'n', 'v' }, '<leader>nq', function() harpoon:list():select(1) end, { desc = "Next mark (harpoon)" })
--- vim.keymap.set({ 'n', 'v' }, '<leader>nw', function() harpoon:list():select(2) end, { desc = "Next mark (harpoon)" })
--- vim.keymap.set({ 'n', 'v' }, '<leader>ne', function() harpoon:list():select(3) end, { desc = "Next mark (harpoon)" })
--- vim.keymap.set({ 'n', 'v' }, '<leader>nr', function() harpoon:list():select(4) end, { desc = "Next mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nn', function() harpoon:list():append() end, { desc = "Mark current file" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nm', function() harpoon.ui:toggle_quick_menu(harpoon:list()) end,
+  { desc = "Harpoon quick menu" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nM', ':Telescope harpoon marks<CR>', { desc = "Harpoon Telescope menu" })
+vim.keymap.set({ 'n', 'v' }, '[n', function() harpoon:list():prev() end, { desc = "Previous mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, ']n', function() harpoon:list():next() end, { desc = "Next mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nq', function() harpoon:list():select(1) end, { desc = "Next mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nw', function() harpoon:list():select(2) end, { desc = "Next mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, '<leader>ne', function() harpoon:list():select(3) end, { desc = "Next mark (harpoon)" })
+vim.keymap.set({ 'n', 'v' }, '<leader>nr', function() harpoon:list():select(4) end, { desc = "Next mark (harpoon)" })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
