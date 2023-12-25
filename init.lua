@@ -602,7 +602,7 @@ vim.keymap.set({ 'n', 'v' }, '<leader>nr', function() harpoon:list():select(4) e
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
     -- Add languages to be installed here that you want installed for treesitter
-    ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'css', 'vimdoc', 'vim',
+    ensure_installed = { 'c', 'cpp', 'go', 'templ', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'css', 'vimdoc', 'vim',
       'bash' },
 
     -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -748,6 +748,13 @@ require('which-key').register({
 require('mason').setup()
 require('mason-lspconfig').setup()
 
+-- additional filetypes
+vim.filetype.add({
+  extension = {
+    templ = "templ",
+  },
+})
+
 -- Enable the following language servers
 --  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
 --
@@ -767,6 +774,8 @@ local servers = {
   tsserver = {},
   eslint = {},
   tailwindcss = {},
+
+  templ = {},
 
   lua_ls = {
     Lua = {
