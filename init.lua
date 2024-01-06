@@ -354,7 +354,7 @@ require('lazy').setup({
   },
 
   {
-    "folke/elash.nvim",
+    "folke/flash.nvim",
     event = "VeryLazy",
     ---@type Flash.Config
     opts = {},
@@ -1021,4 +1021,3 @@ vim.keymap.set({ 'n', 'v' }, 'x', '"_x')
 vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, { expr = true, desc = '[Y]ank (OSC52)' })
 vim.keymap.set('n', '<leader>yy', '<leader>y_', { remap = true, desc = '[Y]ank (OSC52)' })
 vim.keymap.set('v', '<leader>y', require('osc52').copy_visual, { desc = '[Y]ank (OSC52)' })
-
