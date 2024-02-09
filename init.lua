@@ -242,6 +242,8 @@ require('lazy').setup({
         map({ 'o', 'x' }, 'hi', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
+
+    { "zbirenbaum/copilot.lua" },
   },
 
   -- {
@@ -1038,13 +1040,52 @@ require('catppuccin').setup({
   },
 })
 
+require('copilot').setup({
+  panel = {
+    enabled = true,
+    auto_refresh = false,
+    keymap = {
+      jump_prev = "[[",
+      jump_next = "]]",
+      accept = "<CR>",
+      refresh = "gr",
+      open = "<leader>cc"
+    },
+    layout = {
+      position = "bottom", -- | top | left | right
+      ratio = 0.4
+    },
+  },
+  suggestion = {
+    enabled = true,
+    auto_trigger = true,
+    debounce = 75,
+    keymap = {
+      accept = "<M-l>",
+      accept_word = false,
+      accept_line = false,
+      next = "<M-n>",
+      prev = "<M-p>",
+      dismiss = "<M-x>",
+    },
+  },
+  filetypes = {
+    go = true,
+    javascript = true,
+    typescript = true,
+    ["*"] = false,               -- disable for all other filetypes and ignore default `filetypes`
+  },
+  copilot_node_command = 'node', -- Node.js version must be > 18.x
+  server_opts_overrides = {},
+})
+
 -- setup must be called before loading
 vim.cmd.colorscheme "catppuccin"
 
 -- delete into blackhole register
-vim.keymap.set({ 'n', 'v' }, 'd', '"_d')
-vim.keymap.set({ 'n', 'v' }, 'x', '"_x')
+-- vim.keymap.set({ 'n', 'v' }, 'd', '"_d')
+-- vim.keymap.set({ 'n', 'v' }, 'x', '"_x')
 
-vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, { expr = true, desc = '[Y]ank (OSC52)' })
-vim.keymap.set('n', '<leader>yy', '<leader>y_', { remap = true, desc = '[Y]ank (OSC52)' })
-vim.keymap.set('v', '<leader>y', require('osc52').copy_visual, { desc = '[Y]ank (OSC52)' })
+-- vim.keymap.set('n', '<leader>y', require('osc52').copy_operator, { expr = true, desc = '[Y]ank (OSC52)' })
+-- vim.keymap.set('n', '<leader>yy', '<leader>y_', { remap = true, desc = '[Y]ank (OSC52)' })
+-- vim.keymap.set('v', '<leader>y', require('osc52').copy_visual, { desc = '[Y]ank (OSC52)' })
