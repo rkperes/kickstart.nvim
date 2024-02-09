@@ -103,6 +103,13 @@ require('lazy').setup({
   },
 
   {
+    "ray-x/lsp_signature.nvim",
+    event = "VeryLazy",
+    opts = {},
+    config = function(_, opts) require 'lsp_signature'.setup(opts) end
+  },
+
+  {
     "jay-babu/mason-null-ls.nvim",
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
@@ -706,6 +713,9 @@ require("auto-session").setup {
   auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
 }
 
+-- lsp_signature (later used on lsp config)
+signature_setup = {}
+
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_attach = function(_, bufnr)
@@ -750,6 +760,9 @@ local on_attach = function(_, bufnr)
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
+
+  -- lsp_signature
+  require "lsp_signature".on_attach(signature_setup, bufnr)
 end
 
 -- document existing key chains
