@@ -388,6 +388,37 @@ require('lazy').setup({
     },
   },
 
+  {
+    "kevinhwang91/nvim-ufo",
+    dependencies = { "kevinhwang91/promise-async" },
+    opts = {
+      on_attach = function()
+        vim.o.fillchars = [[eob: ,fold: ,foldopen:,foldsep: ,foldclose:]]
+        vim.o.foldcolumn = '1' -- '0' is not bad
+        vim.o.foldlevel = 99   -- Using ufo provider need a large value, feel free to decrease the value
+
+        vim.o.foldlevelstart = 99
+        vim.o.foldenable = false
+        vim.keymap.set('n', 'zR', require('ufo').openAllFolds)
+        vim.keymap.set('n', 'zM', require('ufo').closeAllFolds)
+
+        local capabilities = vim.lsp.protocol.make_client_capabilities()
+        capabilities.textDocument.foldingRange = {
+          dynamicRegistration = false,
+          lineFoldingOnly = true
+        }
+        local language_servers = require("lspconfig").util.available_servers() -- or list servers manually like {'gopls', 'clangd'}
+        for _, ls in ipairs(language_servers) do
+          require('lspconfig')[ls].setup({
+            capabilities = capabilities
+            -- you can add other fields for setting up lsp server in this table
+          })
+        end
+        require('ufo').setup()
+      end
+    },
+  },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
