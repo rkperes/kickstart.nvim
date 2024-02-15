@@ -377,6 +377,17 @@ require('lazy').setup({
     },
   },
 
+  {
+    "nvim-treesitter/nvim-treesitter-context",
+    opts = {
+      on_attach = function()
+        vim.keymap.set("n", "[c", function()
+          require("treesitter-context").go_to_context(vim.v.count1)
+        end, { silent = true })
+      end
+    },
+  },
+
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
   --       Uncomment any of the lines below to enable them.
@@ -408,7 +419,7 @@ vim.wo.relativenumber = true
 -- Cursor centralized in the screen
 vim.o.scrolloff = 999
 
--- Enable mouse mode
+-- Enabe mouse mode
 vim.o.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
