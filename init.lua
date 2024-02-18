@@ -153,6 +153,7 @@ require('lazy').setup({
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
       'hrsh7th/cmp-path',
+      'hrsh7th/cmp-cmdline',
 
       -- Adds a number of user-friendly snippets
       'rafamadriz/friendly-snippets',
@@ -244,6 +245,29 @@ require('lazy').setup({
     },
   },
 
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      -- add any options here
+    },
+    dependencies = {
+      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      "MunifTanjim/nui.nvim",
+      -- OPTIONAL:
+      --   `nvim-notify` is only needed, if you want to use the notification view.
+      --   If not available, we use `mini` as the fallback
+      "rcarriga/nvim-notify",
+    }
+  },
+
+  {
+    'linrongbin16/lsp-progress.nvim',
+    config = function(bufrn)
+      require('lsp-progress').setup(bufrn)
+    end
+  },
+
   { "zbirenbaum/copilot.lua" },
 
   -- {
@@ -265,39 +289,6 @@ require('lazy').setup({
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'catppuccin',
-        component_separators = '|',
-        section_separators = '',
-      },
-
-      sections = {
-        lualine_c = {
-          {
-            'filename',
-            file_status = true,     -- Displays file status (readonly status, modified status)
-            newfile_status = false, -- Display new file status (new file means no write after created)
-            path = 1,               -- 0: Just the filename
-            -- 1: Relative path
-            -- 2: Absolute path
-            -- 3: Absolute path, with tilde as the home directory
-            -- 4: Filename and parent dir, with tilde as the home directory
-
-            shorting_target = 40, -- Shortens path to leave 40 spaces in the window
-            -- for other components. (terrible name, any suggestions?)
-            symbols = {
-              modified = '[+]',      -- Text to show when the file is modified.
-              readonly = '[-]',      -- Text to show when the file is non-modifiable or readonly.
-              unnamed = '[No Name]', -- Text to show for unnamed buffers.
-              newfile = '[New]',     -- Text to show for newly created file before first write
-            }
-          }
-        }
-      }
-    },
   },
 
   {
@@ -418,6 +409,9 @@ require('lazy').setup({
       end
     },
   },
+
+
+  { "" },
 
   -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
   --       These are some example plugins that I've included in the kickstart repository.
@@ -757,6 +751,14 @@ require("auto-session").setup {
   auto_session_suppress_dirs = { "~/", "~/Projects", "~/Downloads", "/" },
 }
 
+-- listen lsp-progress event and refresh lualine
+vim.api.nvim_create_augroup("lualine_augroup", { clear = true })
+vim.api.nvim_create_autocmd("User", {
+  group = "lualine_augroup",
+  pattern = "LspProgressStatusUpdated",
+  callback = require("lualine").refresh,
+})
+
 -- lsp_signature (later used on lsp config)
 signature_setup = {}
 
@@ -1080,6 +1082,39 @@ require('catppuccin').setup({
     },
     -- For more plugins integrations please scroll down (https://github.com/catppuccin/nvim#integrations)
   },
+})
+
+require("lualine").setup({
+  options = {
+    icons_enabled = false,
+    theme = 'catppuccin',
+    component_separators = '|',
+    section_separators = '',
+  },
+  sections = {
+    lualine_c = {
+      {
+        'filename',
+        file_status = true,     -- Displays file status (readonly status, modified status)
+        newfile_status = false, -- Display new file status (new file means no write after created)
+        path = 1,               -- 0: Just the filename
+        -- 1: Relative path
+        -- 2: Absolute path
+        -- 3: Absolute path, with tilde as the home directory
+        -- 4: Filename and parent dir, with tilde as the home directory
+
+        shorting_target = 40, -- Shortens path to leave 40 spaces in the window
+        -- for other components. (terrible name, any suggestions?)
+        symbols = {
+          modified = '[+]',      -- Text to show when the file is modified.
+          readonly = '[-]',      -- Text to show when the file is non-modifiable or readonly.
+          unnamed = '[No Name]', -- Text to show for unnamed buffers.
+          newfile = '[New]',     -- Text to show for newly created file before first write
+        }
+      },
+      require('lsp-progress').progress,
+    }
+  }
 })
 
 require('copilot').setup({
