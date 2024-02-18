@@ -175,11 +175,11 @@ require('lazy').setup({
     opts = {
       -- See `:help gitsigns.txt`
       signs = {
-        add = { text = '+' },
-        change = { text = '~' },
-        delete = { text = '_' },
-        topdelete = { text = '‾' },
-        changedelete = { text = '~' },
+        -- add = { text = '+' },
+        -- change = { text = '~' },
+        -- delete = { text = '_' },
+        -- topdelete = { text = '‾' },
+        -- changedelete = { text = '~' },
       },
       on_attach = function(bufnr)
         local gs = package.loaded.gitsigns
@@ -242,9 +242,9 @@ require('lazy').setup({
         map({ 'o', 'x' }, 'hi', ':<C-U>Gitsigns select_hunk<CR>', { desc = 'select git hunk' })
       end,
     },
-
-    { "zbirenbaum/copilot.lua" },
   },
+
+  { "zbirenbaum/copilot.lua" },
 
   -- {
   --   -- Theme inspired by Atom
