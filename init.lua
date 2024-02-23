@@ -938,15 +938,7 @@ end
 
 set_goimports()
 
-local gopath = vim.env.GOPATH
-if vim.fn.isdirectory('/opt/go/path') ~= 0 then
-  gopath = '/opt/go/path'
-end
-
 require('lspconfig').gopls.setup {
-  -- cmd = { "/opt/go/path/bin/gopls", "-remote=auto" },
-  cmd = { gopath .. "/bin/gopls", "-remote=auto" },
-
   on_attach = on_attach,
 
   flags = {
