@@ -9,3 +9,18 @@ vim.o.shiftwidth = 4
 
 --vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.listchars = { trail = '·' }
+
+-- Telescope
+require('telescope').setup {
+  settings = {
+    initial_mode = 'normal',
+  },
+
+  pickers = {
+    buffers = {
+      sort_mru = true,
+      ignore_current_buffer = true,
+      initial_mode = 'normal',
+    },
+  },
+}
