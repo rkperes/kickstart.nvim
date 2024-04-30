@@ -50,6 +50,7 @@ require('lspconfig').gopls.setup {
   },
   init_options = {
     analyses = {
+      unusedvariable = true,
       unusedparams = true,
     },
     staticcheck = true,
