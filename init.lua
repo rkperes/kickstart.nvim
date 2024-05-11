@@ -632,6 +632,12 @@ require('lazy').setup({
             },
           },
         },
+
+        html = { filetypes = { 'html', 'twig', 'hbs' } },
+        cssls = {},
+        tsserver = {},
+        eslint = {},
+        tailwindcss = {},
       }
 
       -- Ensure the servers and tools above are installed
