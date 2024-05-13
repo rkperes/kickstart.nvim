@@ -21,17 +21,20 @@ local golang_organize_imports = function(bufnr, isPreflight)
 end
 
 local golang_gazelle = function(bufnr)
-  if vim.fn.executable 'gazelle' == 0 then
+  if vim.fn.executable 'goimports' == 0 or vim.fn.executable 'gazelle' == 0 then
     return
   end
 
   local cwd = vim.fn.expand '%:h' .. '/'
 
-  vim.fn.jobstart('gazelle .', {
+  local ar = vim.opt.autoread
+  vim.opt.autoread = true
+  vim.fn.jobstart('goimports -w . && gazelle .', {
     cwd = cwd,
-    -- on_exit = function()
-    --   vim.notify('gazelle exit', vim.log.levels.INFO)
-    -- end,
+    on_exit = function()
+      vim.opt.autoread = ar
+      vim.cmd.redraw()
+    end,
     -- on_stderr = function(chanid, data, name)
     --   print('gazelle:', vim.inspect(data))
     -- end,
@@ -52,7 +55,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
         pattern = '*.go',
         group = vim.api.nvim_create_augroup('LspGolangOrganizeImports.' .. bufnr, {}),
         callback = function()
-          golang_organize_imports(bufnr)
+          -- golang_organize_imports(bufnr)
         end,
       })
 
