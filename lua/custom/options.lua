@@ -10,3 +10,6 @@ vim.o.shiftwidth = 4
 -- vim.opt.list = true
 -- vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 vim.opt.list = false
+
+-- requires nerdfont in terminal
+vim.g.have_nerd_font = true
