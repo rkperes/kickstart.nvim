@@ -46,7 +46,8 @@ local golang_gazelle = function(bufnr)
 end
 
 local is_custom_golang_driver = function()
-  return os.getenv 'GOPACKAGESDRIVER' ~= ''
+  local driver = os.getenv 'GOPACKAGESDRIVER'
+  return driver ~= nil and driver ~= ''
 end
 
 vim.api.nvim_create_autocmd('LspAttach', {
