@@ -41,6 +41,10 @@ local golang_gazelle = function(bufnr)
   })
 end
 
+local is_custom_golang_driver = function()
+  return os.getenv 'GOPACKAGESDRIVER' ~= ''
+end
+
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('LspFormatting', {}),
   callback = function(args)
@@ -48,31 +52,31 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
     if client.name == 'gopls' then
-      -- hack: Preflight async request to gopls, which can prevent blocking when save buffer on first time opened
-      golang_organize_imports(bufnr, true)
+      if not is_custom_golang_driver() then
+        -- hack: Preflight async request to gopls, which can prevent blocking when save buffer on first time opened
+        golang_organize_imports(bufnr)
 
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        pattern = '*.go',
-        group = vim.api.nvim_create_augroup('LspGolangOrganizeImports.' .. bufnr, {}),
-        callback = function()
-          -- golang_organize_imports(bufnr)
-        end,
-      })
-
-      vim.api.nvim_create_autocmd('BufWritePost', {
-        pattern = '*.go',
-        callback = function()
-          golang_gazelle(bufnr)
-        end,
-      })
+        vim.api.nvim_create_autocmd('BufWritePre', {
+          pattern = '*.go',
+          group = vim.api.nvim_create_augroup('LspGolangOrganizeImports.' .. bufnr, {}),
+          callback = function()
+            golang_organize_imports(bufnr)
+          end,
+        })
+      else
+        vim.api.nvim_create_autocmd('BufWritePost', {
+          pattern = '*.go',
+          callback = function()
+            golang_gazelle(bufnr)
+          end,
+        })
+      end
     end
   end,
 })
 -- end goimports
 
 require('lspconfig').gopls.setup {
-  -- on_attach = on_attach,
-
   flags = {
     debounce_text_changes = 100,
   },
@@ -85,7 +89,6 @@ require('lspconfig').gopls.setup {
     gofumpt = true,
     memoryMode = 'DegradeClosed',
   },
-  -- capabilities = capabilities,
 }
 
 return {}
