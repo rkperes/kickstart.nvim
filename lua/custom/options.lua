@@ -13,3 +13,7 @@ vim.opt.list = false
 
 -- requires nerdfont in terminal
 vim.g.have_nerd_font = true
+
+-- always redraw from fs
+vim.o.autoread = true
+vim.o.redrawtime = 500
