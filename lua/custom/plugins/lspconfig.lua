@@ -21,14 +21,15 @@ local golang_organize_imports = function(bufnr, isPreflight)
 end
 
 local golang_gazelle = function(bufnr)
-  if vim.fn.executable 'goimports' == 0 or vim.fn.executable 'gazelle' == 0 then
+  if vim.fn.executable 'gazelle' == 0 then
+    print 'missing binary'
     return
   end
 
   local cwd = vim.fn.expand '%:h' .. '/'
 
   -- sync
-  local j = vim.fn.jobstart('goimports -w', {
+  local j = vim.fn.jobstart('goimports -w .', {
     cwd = cwd,
     on_exit = function()
       vim.cmd.edit()
@@ -36,7 +37,7 @@ local golang_gazelle = function(bufnr)
     -- on_stderr = function(chanid, data, name)
     -- end,
   })
-  vim.fn.jobwait(j, 5000)
+  vim.fn.jobwait({ j }, 5000)
 
   -- async
   vim.fn.jobstart('gazelle .', {
