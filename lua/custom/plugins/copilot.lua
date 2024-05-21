@@ -5,20 +5,20 @@ return {
     event = 'InsertEnter',
     config = function()
       require('copilot').setup {
-        suggestion = {
-          enabled = true,
-          auto_trigger = false,
-          debounce = 75,
-          keymap = {
-            accept = '<M-l>',
-            accept_word = false,
-            accept_line = '<M-L>',
-            next = '<M-]>',
-            prev = '<M-[>',
-            dismiss = '<C-]>',
-          },
-        },
+        suggestion = { enabled = false },
+        panel = { enabled = false },
       }
+    end,
+  },
+  {
+    'zbirenbaum/copilot-cmp',
+    config = function()
+      require('copilot_cmp').setup()
+
+      local cmp = require 'cmp'
+      local config = cmp.get_config()
+      table.insert(config.sources, { name = 'copilot' })
+      cmp.setup(config)
     end,
   },
 }
