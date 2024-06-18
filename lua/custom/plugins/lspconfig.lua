@@ -28,17 +28,6 @@ local golang_gazelle = function(bufnr)
 
   local cwd = vim.fn.expand '%:h' .. '/'
 
-  -- sync
-  local j = vim.fn.jobstart('goimports -w .', {
-    cwd = cwd,
-    on_exit = function()
-      vim.cmd.edit()
-    end,
-    -- on_stderr = function(chanid, data, name)
-    -- end,
-  })
-  vim.fn.jobwait({ j }, 5000)
-
   -- async
   vim.fn.jobstart('gazelle .', {
     cwd = cwd,
