@@ -57,18 +57,7 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
     if client.name == 'gopls' then
-      if not is_custom_golang_driver() then
-        -- hack: Preflight async request to gopls, which can prevent blocking when save buffer on first time opened
-        golang_organize_imports(bufnr)
-
-        vim.api.nvim_create_autocmd('BufWritePre', {
-          pattern = '*.go',
-          group = vim.api.nvim_create_augroup('LspGolangOrganizeImports.' .. bufnr, {}),
-          callback = function()
-            golang_organize_imports(bufnr)
-          end,
-        })
-      else
+      if is_custom_golang_driver() then
         vim.api.nvim_create_autocmd('BufWritePost', {
           pattern = '*.go',
           callback = function()
