@@ -57,7 +57,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
   end,
 })
--- end goimports
 
 require('lspconfig').gopls.setup {
   flags = {
@@ -92,5 +91,9 @@ end
 lspconfig.golangci_lint_ls.setup {
   filetypes = { 'go', 'gomod' },
 }
+
+-- templ
+vim.filetype.add { extension = { templ = 'templ' } }
+vim.api.nvim_create_autocmd({ 'BufWritePre' }, { pattern = { '*.templ' }, callback = vim.lsp.buf.format })
 
 return {}
