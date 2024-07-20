@@ -598,6 +598,7 @@ require('lazy').setup({
         tsserver = {},
         eslint = {},
         tailwindcss = {},
+        templ = {},
       }
 
       -- Ensure the servers and tools above are installed
@@ -616,6 +617,7 @@ require('lazy').setup({
         'gopls',
         -- 'goimports',
         'golangci-lint-langserver',
+        'templ',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
@@ -845,7 +847,7 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
     opts = {
-      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'templ' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
