@@ -788,6 +788,10 @@ require('lazy').setup({
           ['<C-n>'] = cmp.mapping.select_next_item(),
           -- Select the [p]revious item
           ['<C-p>'] = cmp.mapping.select_prev_item(),
+          -- Jump 10 items ahead
+          ['<C-d>'] = cmp.mapping.select_next_item { count = 10 },
+          -- Jump 10 items back
+          ['<C-u>'] = cmp.mapping.select_prev_item { count = 10 },
 
           -- Scroll the documentation window [b]ack / [f]orward
           ['<C-b>'] = cmp.mapping.scroll_docs(-4),
