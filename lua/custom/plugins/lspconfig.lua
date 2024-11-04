@@ -22,7 +22,7 @@ end
 
 local golang_gazelle = function(bufnr)
   if vim.fn.executable 'gazelle' == 0 then
-    print 'missing binary'
+    print 'missing binary for gazelle'
     return
   end
 
@@ -34,29 +34,21 @@ local golang_gazelle = function(bufnr)
   })
 end
 
+local golang_uber_ulsp = function(bufnr)
+  if vim.fn.executable 'uexec' == 0 then
+    print 'missing binary for ulsp'
+    return
+  end
+
+  -- start ulsp daemon if not started
+  -- async
+  vim.fn.jobstart '! pgrep ulsp && ULSP_ENVIRONMENT=local UBER_CONFIG_DIR=$HOME/go-code/src/code.uber.internal/devexp/ide/ulsp-daemon/config uexec $HOME/go-code/tools/ide/ulsp/ulsp-daemon'
+end
+
 local is_custom_golang_driver = function()
   local driver = os.getenv 'GOPACKAGESDRIVER'
   return driver ~= nil and driver ~= ''
 end
-
-vim.api.nvim_create_autocmd('LspAttach', {
-  group = vim.api.nvim_create_augroup('LspFormatting', {}),
-  callback = function(args)
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-
-    if client.name == 'gopls' then
-      if is_custom_golang_driver() then
-        vim.api.nvim_create_autocmd('BufWritePost', {
-          pattern = '*.go',
-          callback = function()
-            golang_gazelle(bufnr)
-          end,
-        })
-      end
-    end
-  end,
-})
 
 require('lspconfig').gopls.setup {
   flags = {
@@ -72,6 +64,67 @@ require('lspconfig').gopls.setup {
     memoryMode = 'DegradeClosed',
   },
 }
+
+if is_custom_golang_driver() then
+  local util = require 'lspconfig.util'
+  local async = require 'lspconfig.async'
+
+  require('lspconfig.configs').ulsp = {
+    default_config = {
+      cmd = { 'socat', '-', 'tcp:localhost:27883,ignoreeof' },
+      flags = {
+        debounce_text_changes = 1000,
+      },
+      capabilities = vim.lsp.protocol.make_client_capabilities(),
+      filetypes = { 'go', 'java' },
+      root_dir = function(fname)
+        local result = async.run_command { 'git', 'rev-parse', '--show-toplevel' }
+        if result and result[1] then
+          return vim.trim(result[1])
+        end
+        return util.root_pattern '.git'(fname)
+      end,
+      single_file_support = false,
+      docs = {
+        description = [[
+            uLSP brought to you by the IDE team!
+            By utilizing uLSP in Neovim, you acknowledge that this integration is provided 'as-is' with no warranty, express or implied.
+            We make no guarantees regarding its functionality, performance, or suitability for any purpose, and absolutely no support will be provided.
+            Use at your own risk, and may the code gods have mercy on your soul
+        ]],
+      },
+    },
+  }
+
+  require('lspconfig')['ulsp'].setup {}
+end
+
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('LspFormatting', {}),
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+
+    if client.name == 'ulsp' then
+      vim.api.nvim_create_autocmd('VimEnter', {
+        pattern = '*.go',
+        callback = function()
+          print 'starting ulsp'
+          golang_uber_ulsp(bufnr)
+        end,
+      })
+    end
+
+    -- if client.name == 'gopls' then
+    --   vim.api.nvim_create_autocmd('BufWritePost', {
+    --     pattern = '*.go',
+    --     callback = function()
+    --       golang_gazelle(bufnr)
+    --     end,
+    --   })
+    -- end
+  end,
+})
 
 -- go install github.com/nametake/golangci-lint-langserver@latest
 -- local lspconfig = require 'lspconfig'

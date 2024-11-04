@@ -276,7 +276,7 @@ require('lazy').setup({
   -- after the plugin has been loaded:
   --  config = function() ... end
 
-  {                     -- Useful plugin to show you pending keybinds.
+  { -- Useful plugin to show you pending keybinds.
     'folke/which-key.nvim',
     event = 'VimEnter', -- Sets the loading event to 'VimEnter'
     opts = {
@@ -319,7 +319,7 @@ require('lazy').setup({
 
       -- Document existing key chains
       spec = {
-        { '<leader>c', group = '[C]ode',     mode = { 'n', 'x' } },
+        { '<leader>c', group = '[C]ode', mode = { 'n', 'x' } },
         { '<leader>d', group = '[D]ocument' },
         { '<leader>r', group = '[R]ename' },
         { '<leader>s', group = '[S]earch' },
@@ -359,7 +359,7 @@ require('lazy').setup({
       { 'nvim-telescope/telescope-ui-select.nvim' },
 
       -- Useful for getting pretty icons, but requires a Nerd Font.
-      { 'nvim-tree/nvim-web-devicons',            enabled = vim.g.have_nerd_font },
+      { 'nvim-tree/nvim-web-devicons', enabled = vim.g.have_nerd_font },
     },
     config = function()
       -- Telescope is a fuzzy finder that comes with a lot of different things that
@@ -468,7 +468,7 @@ require('lazy').setup({
   -- 		},
   -- 	},
   -- },
-  { 'Bilal2453/luvit-meta',  lazy = true },
+  { 'Bilal2453/luvit-meta', lazy = true },
   {
     -- Main LSP Configuration
     'neovim/nvim-lspconfig',
@@ -480,7 +480,7 @@ require('lazy').setup({
 
       -- Useful status updates for LSP.
       -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { 'j-hui/fidget.nvim',       opts = {} },
+      { 'j-hui/fidget.nvim', opts = {} },
 
       -- Allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
@@ -576,8 +576,7 @@ require('lazy').setup({
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
-            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight',
-              { clear = false })
+            local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
               group = highlight_augroup,
@@ -667,7 +666,7 @@ require('lazy').setup({
 
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         cssls = {},
-        tsserver = {},
+        -- tsserver = {},
         eslint = {},
         tailwindcss = {},
         templ = {},
@@ -713,7 +712,7 @@ require('lazy').setup({
     event = { 'BufWritePre' },
     cmd = { 'ConformInfo' },
     lazy = false,
-    version = "v7.1.0",
+    version = 'v7.1.0',
     keys = {
       {
         '<leader>f',
