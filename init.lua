@@ -413,6 +413,19 @@ require('lazy').setup({
       pcall(require('telescope').load_extension, 'fzf')
       pcall(require('telescope').load_extension, 'ui-select')
 
+      function vim.getVisualSelection()
+        vim.cmd 'noau normal! "vy"'
+        local text = vim.fn.getreg 'v'
+        vim.fn.setreg('v', {})
+
+        text = string.gsub(text, '\n', '')
+        if #text > 0 then
+          return text
+        else
+          return ''
+        end
+      end
+
       -- See `:help telescope.builtin`
       local builtin = require 'telescope.builtin'
       vim.keymap.set('n', '<leader>sh', builtin.help_tags, { desc = '[S]earch [H]elp' })
@@ -435,6 +448,10 @@ require('lazy').setup({
       end, { desc = '[S]earch [F]iles (include tests, hidden and gitignored)' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('v', '<leader>sw', function()
+        local text = vim.getVisualSelection()
+        builtin.grep_string { search = text }
+      end, { desc = '[S]earch current [W]ord (selection)' })
       vim.keymap.set('n', '<leader>sg', function()
         builtin.live_grep {
           file_ignore_patterns = {
