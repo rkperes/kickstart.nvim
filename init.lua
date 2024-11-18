@@ -393,7 +393,7 @@ require('lazy').setup({
               len = 3,
               exclude = { -1, -2 },
             },
-            'smart',
+            -- 'smart',
             -- truncate = 10,
           },
           -- wrap_results = true,
@@ -447,11 +447,42 @@ require('lazy').setup({
         }
       end, { desc = '[S]earch [F]iles (include tests, hidden and gitignored)' })
       vim.keymap.set('n', '<leader>ss', builtin.builtin, { desc = '[S]earch [S]elect Telescope' })
-      vim.keymap.set('n', '<leader>sw', builtin.grep_string, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>sw', function()
+        builtin.grep_string {
+          file_ignore_patterns = {
+            '/test[^/]*/',
+            '/[^/]*test/',
+            '_test.go$',
+            'BUILD.bazel',
+          },
+        }
+      end, { desc = '[S]earch current [W]ord' })
+      vim.keymap.set('n', '<leader>sW', function()
+        builtin.grep_string {
+          file_ignore_patterns = {
+            '/test[^/]*/',
+            '/[^/]*test/',
+            '_test.go$',
+            'BUILD.bazel',
+          },
+        }
+      end, { desc = '[S]earch current [W]ord (include tests, hidden and gitignored)' })
       vim.keymap.set('v', '<leader>sw', function()
         local text = vim.getVisualSelection()
-        builtin.grep_string { search = text }
+        builtin.grep_string {
+          search = text,
+          hidden = true,
+          no_ignore = true,
+        }
       end, { desc = '[S]earch current [W]ord (selection)' })
+      vim.keymap.set('v', '<leader>sW', function()
+        local text = vim.getVisualSelection()
+        builtin.grep_string {
+          search = text,
+          hidden = true,
+          no_ignore = true,
+        }
+      end, { desc = '[S]earch current [W]ord (selection) (include tests, hidden and gitignored)' })
       vim.keymap.set('n', '<leader>sg', function()
         builtin.live_grep {
           file_ignore_patterns = {
