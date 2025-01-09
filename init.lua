@@ -797,7 +797,7 @@ require('lazy').setup({
     -- version = 'v7.1.0',
     keys = {
       {
-        '<leader>f',
+        '<leader>F',
         function()
           require('conform').format { async = true, lsp_format = 'fallback' }
         end,
