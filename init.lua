@@ -717,6 +717,9 @@ require('lazy').setup({
       --  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+      local cwd = vim.fn.getcwd()
+      local lsputils = require 'lspconfig.util'
+      local root_dir = lsputils.root_pattern '.yarn'(cwd)
       local servers = {
         -- clangd = {},
         gopls = {},
@@ -748,7 +751,43 @@ require('lazy').setup({
 
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         cssls = {},
-        -- tsserver = {},
+        vtsls = {
+          init_options = {
+            hostInfo = 'neovim',
+          },
+          settings = {
+            complete_function_calls = true,
+            vtsls = {
+              enableMoveToFileCodeAction = true,
+              typescript = cwd:match 'web%-code' and {
+                globalTsdk = root_dir .. '/.yarn/sdks/typescript/lib',
+              } or {},
+              experimental = {
+                maxInlayHintLength = 30,
+                completion = {
+                  enableServerSideFuzzyMatch = true,
+                },
+              },
+            },
+            typescript = {
+              updateImportsOnFileMove = { enabled = 'always' },
+              suggest = {
+                completeFunctionCalls = true,
+              },
+              inlayHints = {
+                enumMemberValues = { enabled = true },
+                functionLikeReturnTypes = { enabled = true },
+                parameterNames = { enabled = 'literals' },
+                parameterTypes = { enabled = true },
+                propertyDeclarationTypes = { enabled = true },
+                variableTypes = { enabled = false },
+              },
+              tsserver = {
+                maxTsServerMemory = 16384,
+              },
+            },
+          },
+        },
         eslint = {},
         tailwindcss = {},
         templ = {},
@@ -771,6 +810,8 @@ require('lazy').setup({
         -- 'goimports',
         -- 'golangci-lint-langserver',
         'templ',
+        'vtsls',
+        'eslint',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 

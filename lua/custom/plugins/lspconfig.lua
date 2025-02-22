@@ -99,6 +99,16 @@ if is_custom_golang_driver() then
   require('lspconfig')['ulsp'].setup {}
 end
 
+local cwd = vim.fn.getcwd()
+local lsputils = require 'lspconfig.util'
+local root_dir = lsputils.root_pattern '.yarn'(cwd)
+
+require('lspconfig').eslint.setup {
+  settings = cwd:match 'web%-code' and {
+    nodePath = root_dir .. '/.yarn/sdks',
+  } or {},
+}
+
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('LspFormatting', {}),
   callback = function(args)
@@ -123,6 +133,18 @@ vim.api.nvim_create_autocmd('LspAttach', {
     --     end,
     --   })
     -- end
+
+    -- let eslint handle fmting
+    if client.name == 'eslint' then
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        buffer = bufnr,
+        command = 'EslintFixAll',
+      })
+
+      client.server_capabilities.documentFormattingProvider = true
+    elseif client.name == 'tsserver' then
+      client.server_capabilities.documentFormattingProvider = false
+    end
   end,
 })
 
