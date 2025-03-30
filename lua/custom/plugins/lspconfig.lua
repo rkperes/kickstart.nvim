@@ -115,24 +115,29 @@ vim.api.nvim_create_autocmd('LspAttach', {
     local bufnr = args.buf
     local client = vim.lsp.get_client_by_id(args.data.client_id)
 
+    if client == nil then
+      return
+    end
+
     if client.name == 'ulsp' then
       vim.api.nvim_create_autocmd('VimEnter', {
         pattern = '*.go',
         callback = function()
-          print 'starting ulsp'
           golang_uber_ulsp(bufnr)
         end,
       })
     end
 
-    -- if client.name == 'gopls' then
-    --   vim.api.nvim_create_autocmd('BufWritePost', {
-    --     pattern = '*.go',
-    --     callback = function()
-    --       golang_gazelle(bufnr)
-    --     end,
-    --   })
-    -- end
+    if not is_custom_golang_driver() and client.name == 'gopls' then
+      local diag = {}
+      vim.api.nvim_create_autocmd('BufWritePre', {
+        callback = function(_)
+          vim.lsp.buf.format()
+          vim.lsp.buf.code_action { context = { only = { 'source.organizeImports' }, diagnostics = diag }, apply = true }
+          vim.lsp.buf.code_action { context = { only = { 'source.fixAll' }, diagnostics = diag }, apply = true }
+        end,
+      })
+    end
 
     -- let eslint handle fmting
     if client.name == 'eslint' then
