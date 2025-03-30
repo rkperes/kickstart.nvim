@@ -124,8 +124,8 @@ return {
 
       vim.keymap.set('n', '<leader>fr', require('fzf-lua').resume, { desc = 'Resume' })
       vim.keymap.set('n', '<leader>ff', fzf_func_wrap_with_ignore(require('fzf-lua').files, true), { desc = 'Files' })
-      vim.keymap.set('n', '<leader>fg', require('fzf-lua').grep_project, { desc = 'Grep' })
-      vim.keymap.set('n', '<leader>fw', require('fzf-lua').grep_cword, { desc = 'Grep current word' })
+      vim.keymap.set('n', '<leader>fg', fzf_func_wrap_with_ignore(require('fzf-lua').grep_project, true), { desc = 'Grep' })
+      vim.keymap.set('n', '<leader>fw', fzf_func_wrap_with_ignore(require('fzf-lua').grep_cword, true), { desc = 'Grep current word' })
       vim.keymap.set('n', '<leader>f.', function()
         local oil = require 'oil'
         local cwd = oil.get_current_dir() or vim.fn.expand '%:p:h'
