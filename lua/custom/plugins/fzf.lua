@@ -1,3 +1,46 @@
+local file_ignore_patterns = {
+  '/test[^/]*/',
+  '/[^/]*test/',
+  '_test.go$',
+  '_templ.go$',
+  'BUILD.bazel',
+  '^\\..*',
+}
+
+local fzf_custom_ignore_func
+fzf_custom_ignore_func = function(fzf_func, ignore, flip_ignore)
+  local fip = ignore == true and file_ignore_patterns or nil
+  local opts = {
+    file_ignore_patterns = fip,
+    actions = {
+      ['ctrl-g'] = {
+        fn = function()
+          ignore = flip_ignore()
+          fzf_custom_ignore_func(fzf_func, ignore, flip_ignore)
+        end,
+        desc = 'Ignore custom file set',
+        header = function()
+          return ignore == false and 'hide ignored files' or 'show ignored files'
+        end,
+      },
+    },
+  }
+  fzf_func(opts)
+  return ignore
+end
+
+local fzf_func_wrap_with_ignore = function(fzf_func, initial)
+  local ignore = initial
+  local flip_ignore = function()
+    ignore = not ignore
+    return ignore
+  end
+
+  return function()
+    fzf_custom_ignore_func(fzf_func, ignore, flip_ignore)
+  end
+end
+
 return {
   {
     'ibhagwan/fzf-lua',
@@ -6,13 +49,6 @@ return {
     config = function()
       local fzf_lua = require 'fzf-lua'
       local actions = fzf_lua.actions
-
-      local file_ignore_patterns = {
-        '/test[^/]*/',
-        '/[^/]*test/',
-        '_test.go$',
-        'BUILD.bazel',
-      }
 
       -- calling `setup` is optional for customization
       fzf_lua.setup {
@@ -25,7 +61,7 @@ return {
           },
         },
 
-        file_ignore_patterns = file_ignore_patterns,
+        -- file_ignore_patterns = file_ignore_patterns,
         hls = { normal = 'Normal', preview_normal = 'Normal', border = 'Function', preview_border = 'Function' },
         winopts = {
           height = 0.5,
@@ -51,7 +87,7 @@ return {
         },
         files = {
           formatter = 'path.filename_first',
-          git_icons = true,
+          git_icons = false,
           prompt = ':',
           no_header = false,
           cwd_prompt = true,
@@ -87,7 +123,7 @@ return {
       }
 
       vim.keymap.set('n', '<leader>fr', require('fzf-lua').resume, { desc = 'Resume' })
-      vim.keymap.set('n', '<leader>ff', require('fzf-lua').files, { desc = 'Files' })
+      vim.keymap.set('n', '<leader>ff', fzf_func_wrap_with_ignore(require('fzf-lua').files, true), { desc = 'Files' })
       vim.keymap.set('n', '<leader>fg', require('fzf-lua').grep_project, { desc = 'Grep' })
       vim.keymap.set('n', '<leader>fw', require('fzf-lua').grep_cword, { desc = 'Grep current word' })
       vim.keymap.set('n', '<leader>f.', function()
