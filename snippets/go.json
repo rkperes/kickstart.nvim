@@ -1,0 +1,12 @@
+{
+  "test suite setup": {
+    "prefix": "ts",
+    "description": "Snippet for a testify test suite declaration",
+    "body": "type ${1:TestSuite} struct {\n\t*testing.T\n}\n\nfunc (s *${1:TestSuite}) SetupTest() {\n\t// setup code here\n}\n\nfunc (s *${1:TestSuite}) TearDownTest() {\n\t// teardown code here\n}\n\nfunc Test${1:TestSuite}(t *testing.T) {\n\tsuite.Run(t, new(${1:TestSuite})\n}\n"
+  },
+  "test suite test": {
+    "prefix": "tt",
+    "description": "Snippet for a testify test case declaration",
+    "body": "func (s *${1:TestSuite}) Test${2:TestName}() {\n\t// test code here\n}\n"
+  }
+}
