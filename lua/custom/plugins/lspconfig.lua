@@ -8,7 +8,28 @@ local golang_organize_imports = function(bufnr, isPreflight)
     return
   end
 
-  local result = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 3000)
+  local result = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 1000)
+  for _, res in pairs(result or {}) do
+    for _, r in pairs(res.result or {}) do
+      if r.edit then
+        vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding(bufnr))
+      else
+        vim.lsp.buf.execute_command(r.command)
+      end
+    end
+  end
+end
+
+local golang_fix_all = function(bufnr, isPreflight)
+  local params = vim.lsp.util.make_range_params(nil, vim.lsp.util._get_offset_encoding(bufnr))
+  params.context = { only = { 'source.fixAll' } }
+
+  if isPreflight then
+    vim.lsp.buf_request(bufnr, 'textDocument/codeAction', params, function() end)
+    return
+  end
+
+  local result = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 1000)
   for _, res in pairs(result or {}) do
     for _, r in pairs(res.result or {}) do
       if r.edit then
@@ -56,8 +77,37 @@ require('lspconfig').gopls.setup {
   },
   init_options = {
     analyses = {
-      unusedvariable = true,
+      -- check https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
+      -- wanted
+      assign = true,
+      bools = true,
+      composites = true,
+      copylocks = true,
+      defers = true,
+      deprecated = true,
+      errorsas = true,
+      fillreturns = true,
+      gofix = true,
+      httpresponse = true,
+      ifaceassert = true,
+      infertypeargs = true,
+      lostcancel = true,
+      modernize = true,
+      nilfunc = true,
+      nilness = true,
+      nonewvars = true,
+      noresultvalues = true,
+      printf = true,
+      shadow = true,
       unusedparams = true,
+      unusedresult = true,
+      unusedvariable = true,
+      unusedwrite = true,
+      unreachable = true,
+      waitgroup = true,
+      yield = true,
+      -- explicitly false
+      fieldalignment = false,
     },
     staticcheck = true,
     gofumpt = true,
@@ -128,13 +178,17 @@ vim.api.nvim_create_autocmd('LspAttach', {
       })
     end
 
-    if not is_custom_golang_driver() and client.name == 'gopls' then
-      local diag = {}
+    if client.name == 'gopls' then
+      golang_fix_all(bufnr, true)
+      golang_organize_imports(bufnr, true)
+
       vim.api.nvim_create_autocmd('BufWritePre', {
         callback = function(_)
           vim.lsp.buf.format()
-          vim.lsp.buf.code_action { context = { only = { 'source.organizeImports' }, diagnostics = diag }, apply = true }
-          vim.lsp.buf.code_action { context = { only = { 'source.fixAll' }, diagnostics = diag }, apply = true }
+          golang_fix_all(bufnr, false)
+          if not is_custom_golang_driver() then
+            golang_organize_imports(bufnr, false)
+          end
         end,
       })
     end
