@@ -179,8 +179,9 @@ vim.api.nvim_create_autocmd('LspAttach', {
     end
 
     if client.name == 'gopls' then
-      golang_fix_all(bufnr, true)
-      golang_organize_imports(bufnr, true)
+      if not is_custom_golang_driver() then
+        golang_organize_imports(bufnr, true)
+      end
 
       vim.api.nvim_create_autocmd('BufWritePre', {
         callback = function(_)
