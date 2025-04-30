@@ -86,7 +86,7 @@ return {
           ['--no-scrollbar'] = '',
         },
         files = {
-          formatter = 'path.filename_first',
+          -- formatter = 'path.filename_first',
           git_icons = false,
           prompt = ':',
           no_header = false,
@@ -103,7 +103,7 @@ return {
           },
         },
         buffers = {
-          formatter = 'path.filename_first',
+          -- formatter = 'path.filename_first',
           prompt = ':',
           no_header = true,
           winopts = {
@@ -115,7 +115,7 @@ return {
           },
         },
         grep = {
-          formatter = 'path.filename_first',
+          -- formatter = 'path.filename_first',
           winopts = {
             preview = { hidden = 'hidden' },
           },
