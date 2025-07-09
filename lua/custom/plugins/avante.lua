@@ -49,6 +49,16 @@ return {
       -- for example
       -- provider = 'openai',
       provider = 'copilot',
+      providers = {
+        copilot = {
+          endpoint = 'https://api.githubcopilot.com',
+          model = 'claude-sonnet-4',
+          proxy = nil,
+          allow_insecure = false, -- Allow insecure server connections
+          timeout = 30000, -- Timeout in milliseconds
+        },
+      },
+
       hints = { enabled = true },
       windows = {
         ---@type "right" | "left" | "top" | "bottom"
@@ -75,32 +85,6 @@ return {
           ---@type "ours" | "theirs"
           focus_on_apply = 'ours', -- which diff to focus after applying
         },
-      },
-      claude = {
-        endpoint = 'https://api.anthropic.com',
-        model = 'claude-3-5-sonnet-20241022',
-        temperature = 0,
-        max_tokens = 4096,
-      },
-      openai = {
-        endpoint = 'https://genai-api.uberinternal.com/v1',
-        model = 'session-management/gpt-41-session-management', -- your desired model (or use gpt-4o, etc.)
-        headers = {
-          ['openai-organization'] = 'b9477307-de9f-40af-a368-14d0f67479b6',
-        },
-        -- timeout = 30000, -- Timeout in milliseconds, increase this for reasoning models
-        -- temperature = 0,
-        -- max_tokens = 8192, -- Increase this to include reasoning tokens (for reasoning models)
-        --reasoning_effort = "medium", -- low|medium|high, only used for reasoning models
-      },
-      copilot = {
-        endpoint = 'https://api.githubcopilot.com',
-        model = 'claude-sonnet-4',
-        proxy = nil,
-        allow_insecure = false, -- Allow insecure server connections
-        timeout = 30000, -- Timeout in milliseconds
-        temperature = 0.75,
-        max_tokens = 20480,
       },
     }
     require('avante').setup(opts)
