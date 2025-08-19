@@ -111,7 +111,7 @@ require('lspconfig').gopls.setup {
     },
     staticcheck = true,
     gofumpt = true,
-    memoryMode = 'DegradeClosed',
+    -- memoryMode = 'DegradeClosed',
   },
 }
 
