@@ -71,7 +71,7 @@ local is_custom_golang_driver = function()
   return driver ~= nil and driver ~= ''
 end
 
-require('lspconfig').gopls.setup {
+vim.lsp.config('gopls', {
   flags = {
     debounce_text_changes = 100,
   },
@@ -113,7 +113,7 @@ require('lspconfig').gopls.setup {
     gofumpt = true,
     -- memoryMode = 'DegradeClosed',
   },
-}
+})
 
 if is_custom_golang_driver() then
   local util = require 'lspconfig.util'
