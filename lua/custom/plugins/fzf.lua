@@ -120,6 +120,9 @@ return {
             preview = { hidden = 'hidden' },
           },
         },
+        lsp = {
+          git_icons = true,
+        },
       }
 
       vim.keymap.set('n', '<leader>fr', require('fzf-lua').resume, { desc = 'Resume' })
@@ -128,11 +131,18 @@ return {
       vim.keymap.set('n', '<leader>fw', fzf_func_wrap_with_ignore(require('fzf-lua').grep_cword, true), { desc = 'Grep current word' })
 
       -- lsp-related
+      local lsp_ignore_opts = {
+        fzf_opts = {
+          ['--tiebreak'] = 'begin',
+          ['--query'] = '!mocks !_test.go ',
+        },
+      }
+
       vim.keymap.set('n', 'gd', function()
         require('fzf-lua').lsp_definitions()
       end, { desc = '[G]oto [D]efinition' })
       vim.keymap.set('n', 'gr', function()
-        require('fzf-lua').lsp_references()
+        require('fzf-lua').lsp_references(lsp_ignore_opts)
       end, { desc = '[G]oto [R]eferences' })
       vim.keymap.set('n', 'gI', function()
         require('fzf-lua').lsp_implementations()
