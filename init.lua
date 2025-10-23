@@ -847,6 +847,7 @@ require('lazy').setup({
         eslint = {},
         tailwindcss = {},
         templ = {},
+        svelte = { filetypes = { 'svelte' } },
       }
 
       -- Ensure the servers and tools above are installed
