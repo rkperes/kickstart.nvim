@@ -63,12 +63,13 @@ local golang_uber_ulsp = function(bufnr)
 
   -- start ulsp daemon if not started
   -- async
-  vim.fn.jobstart '! pgrep ulsp && ULSP_ENVIRONMENT=local UBER_CONFIG_DIR=$HOME/go-code/src/code.uber.internal/devexp/ide/ulsp-daemon/config uexec $HOME/go-code/tools/ide/ulsp/ulsp-daemon'
+  vim.fn.jobstart '! pgrep ulsp && $HOME/run-ulsp.sh'
 end
 
 local is_custom_golang_driver = function()
   local driver = os.getenv 'GOPACKAGESDRIVER'
-  return driver ~= nil and driver ~= ''
+  local ulspdriver = os.getenv 'GOPACKAGESDRIVER_ULSP_MODE'
+  return (driver ~= nil and driver ~= '') or (ulspdriver ~= nil and ulspdriver ~= '')
 end
 
 vim.lsp.config('gopls', {
@@ -180,15 +181,15 @@ vim.api.nvim_create_autocmd('LspAttach', {
 
     if client.name == 'gopls' then
       if not is_custom_golang_driver() then
-        golang_organize_imports(bufnr, true)
+        -- golang_organize_imports(bufnr, true)
       end
 
       vim.api.nvim_create_autocmd('BufWritePre', {
         callback = function(_)
-          vim.lsp.buf.format()
-          golang_fix_all(bufnr, false)
+          -- vim.lsp.buf.format()
+          -- golang_fix_all(bufnr, false)
           if not is_custom_golang_driver() then
-            golang_organize_imports(bufnr, false)
+            -- golang_organize_imports(bufnr, false)
           end
         end,
       })
