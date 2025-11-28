@@ -59,6 +59,9 @@ return {
             ['<C-d>'] = 'preview-page-down',
             ['<C-u>'] = 'preview-page-up',
           },
+          fzf = {
+            ['ctrl-q'] = 'select-all+accept',
+          },
         },
 
         -- file_ignore_patterns = file_ignore_patterns,
