@@ -73,10 +73,49 @@ local is_custom_golang_driver = function()
 end
 
 vim.lsp.config('gopls', {
+  keys = {
+    -- add any custom keybinds
+  },
+  cmd = {
+    'gopls',
+    '-remote=auto',
+    '-rpc.trace',
+    '-v',
+  },
   flags = {
     debounce_text_changes = 100,
   },
   init_options = {
+    staticcheck = true,
+    gofumpt = true,
+    -- memoryMode = 'DegradeClosed',
+  },
+  settings = {
+    gofumpt = true,
+    usePlaceholders = true,
+    completeUnimported = true,
+    staticcheck = true,
+    directoryFilters = { '-.git', '-.vscode', '-.idea', '-.vscode-test', '-node_modules' },
+    semanticTokens = true,
+    codelenses = {
+      gc_details = false,
+      generate = true,
+      regenerate_cgo = true,
+      run_govulncheck = true,
+      test = true,
+      tidy = true,
+      upgrade_dependency = true,
+      vendor = true,
+    },
+    hints = {
+      assignVariableTypes = true,
+      compositeLiteralFields = true,
+      compositeLiteralTypes = true,
+      constantValues = true,
+      functionTypeParameters = true,
+      parameterNames = true,
+      rangeVariableTypes = true,
+    },
     analyses = {
       -- check https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
       -- wanted
@@ -110,9 +149,6 @@ vim.lsp.config('gopls', {
       -- explicitly false
       fieldalignment = false,
     },
-    staticcheck = true,
-    gofumpt = true,
-    -- memoryMode = 'DegradeClosed',
   },
 })
 
@@ -123,31 +159,27 @@ if is_custom_golang_driver() then
   require('lspconfig.configs').ulsp = {
     default_config = {
       cmd = { 'socat', '-', 'tcp:localhost:27883,ignoreeof' },
-      flags = {
-        debounce_text_changes = 1000,
-      },
-      capabilities = vim.lsp.protocol.make_client_capabilities(),
+
+      -- capabilities = vim.lsp.protocol.make_client_capabilities(),
       filetypes = { 'go', 'java' },
       root_dir = function(fname)
-        local result = async.run_command { 'git', 'rev-parse', '--show-toplevel' }
+        -- local result = async.run_command { 'git', 'rev-parse', '--show-toplevel' }
+        local result = require('lspconfig.async').run_command { 'git', 'rev-parse', '--show-toplevel' }
+
         if result and result[1] then
           return vim.trim(result[1])
         end
         return util.root_pattern '.git'(fname)
       end,
       single_file_support = false,
-      docs = {
-        description = [[
-            uLSP brought to you by the IDE team!
-            By utilizing uLSP in Neovim, you acknowledge that this integration is provided 'as-is' with no warranty, express or implied.
-            We make no guarantees regarding its functionality, performance, or suitability for any purpose, and absolutely no support will be provided.
-            Use at your own risk, and may the code gods have mercy on your soul
-        ]],
-      },
     },
   }
 
-  vim.lsp.config['ulsp'].setup {}
+  require('lspconfig').ulsp.setup {
+    flags = {
+      debounce_text_changes = 1000,
+    },
+  }
 end
 
 local cwd = vim.fn.getcwd()
