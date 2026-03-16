@@ -191,7 +191,7 @@ return {
       vim.keymap.set('n', '<leader><leader>', require('fzf-lua').buffers, { desc = '[ ] Find existing buffers' })
 
       -- git related
-      vim.keymap.set('n', '<leader>gs', require('fzf-lua').git_status, { desc = 'Git status' })
+      -- vim.keymap.set('n', '<leader>gs', require('fzf-lua').git_status, { desc = 'Git status' })
     end,
   },
 }
