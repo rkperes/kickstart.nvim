@@ -1,68 +1,8 @@
--- From https://github.com/neovim/nvim-lspconfig/issues/115
-local golang_organize_imports = function(bufnr, isPreflight)
-  local params = vim.lsp.util.make_range_params(nil, vim.lsp.util._get_offset_encoding(bufnr))
-  params.context = { only = { 'source.organizeImports' } }
-
-  if isPreflight then
-    vim.lsp.buf_request(bufnr, 'textDocument/codeAction', params, function() end)
-    return
-  end
-
-  local result = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 1000)
-  for _, res in pairs(result or {}) do
-    for _, r in pairs(res.result or {}) do
-      if r.edit then
-        vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding(bufnr))
-      else
-        vim.lsp.buf.execute_command(r.command)
-      end
-    end
-  end
-end
-
-local golang_fix_all = function(bufnr, isPreflight)
-  local params = vim.lsp.util.make_range_params(nil, vim.lsp.util._get_offset_encoding(bufnr))
-  params.context = { only = { 'source.fixAll' } }
-
-  if isPreflight then
-    vim.lsp.buf_request(bufnr, 'textDocument/codeAction', params, function() end)
-    return
-  end
-
-  local result = vim.lsp.buf_request_sync(bufnr, 'textDocument/codeAction', params, 1000)
-  for _, res in pairs(result or {}) do
-    for _, r in pairs(res.result or {}) do
-      if r.edit then
-        vim.lsp.util.apply_workspace_edit(r.edit, vim.lsp.util._get_offset_encoding(bufnr))
-      else
-        vim.lsp.buf.execute_command(r.command)
-      end
-    end
-  end
-end
-
-local golang_gazelle = function(bufnr)
-  if vim.fn.executable 'gazelle' == 0 then
-    print 'missing binary for gazelle'
-    return
-  end
-
-  local cwd = vim.fn.expand '%:h' .. '/'
-
-  -- async
-  vim.fn.jobstart('gazelle .', {
-    cwd = cwd,
-  })
-end
-
 local golang_uber_ulsp = function(bufnr)
   if vim.fn.executable 'uexec' == 0 then
     print 'missing binary for ulsp'
     return
   end
-
-  -- start ulsp daemon if not started
-  -- async
   vim.fn.jobstart '! pgrep ulsp && $HOME/run-ulsp.sh'
 end
 
@@ -72,10 +12,8 @@ local is_custom_golang_driver = function()
   return (driver ~= nil and driver ~= '') or (ulspdriver ~= nil and ulspdriver ~= '')
 end
 
+-- 1. Setup gopls blueprints
 vim.lsp.config('gopls', {
-  keys = {
-    -- add any custom keybinds
-  },
   cmd = {
     'gopls',
     '-remote=auto',
@@ -88,7 +26,6 @@ vim.lsp.config('gopls', {
   init_options = {
     staticcheck = true,
     gofumpt = true,
-    -- memoryMode = 'DegradeClosed',
   },
   settings = {
     gofumpt = true,
@@ -100,7 +37,7 @@ vim.lsp.config('gopls', {
     codelenses = {
       gc_details = false,
       generate = true,
-      regenerate_cgo = true,
+      regener_cgo = true,
       run_govulncheck = true,
       test = true,
       tidy = true,
@@ -117,8 +54,6 @@ vim.lsp.config('gopls', {
       rangeVariableTypes = true,
     },
     analyses = {
-      -- check https://github.com/golang/tools/blob/master/gopls/doc/analyzers.md
-      -- wanted
       assign = true,
       bools = true,
       composites = true,
@@ -146,42 +81,26 @@ vim.lsp.config('gopls', {
       unreachable = true,
       waitgroup = true,
       yield = true,
-      -- explicitly false
       fieldalignment = false,
     },
   },
 })
 
+-- 2. Define and enable custom 'ulsp' configuration natively
 if is_custom_golang_driver() then
-  local util = require 'lspconfig.util'
-  local async = require 'lspconfig.async'
-
-  require('lspconfig.configs').ulsp = {
-    default_config = {
-      cmd = { 'socat', '-', 'tcp:localhost:27883,ignoreeof' },
-
-      -- capabilities = vim.lsp.protocol.make_client_capabilities(),
-      filetypes = { 'go', 'java' },
-      root_dir = function(fname)
-        -- local result = async.run_command { 'git', 'rev-parse', '--show-toplevel' }
-        local result = require('lspconfig.async').run_command { 'git', 'rev-parse', '--show-toplevel' }
-
-        if result and result[1] then
-          return vim.trim(result[1])
-        end
-        return util.root_pattern '.git'(fname)
-      end,
-      single_file_support = false,
-    },
-  }
-
-  require('lspconfig').ulsp.setup {
+  vim.lsp.config('ulsp', {
+    cmd = { 'socat', '-', 'tcp:localhost:27883,ignoreeof' },
+    filetypes = { 'go', 'java' },
+    root_markers = { '.git' },
+    single_file_support = false,
     flags = {
       debounce_text_changes = 1000,
     },
-  }
+  })
+  vim.lsp.enable('ulsp')
 end
 
+-- 3. Setup eslint blueprints
 local cwd = vim.fn.getcwd()
 local lsputils = require 'lspconfig.util'
 local root_dir = lsputils.root_pattern '.yarn'(cwd)
@@ -192,6 +111,10 @@ vim.lsp.config('eslint', {
   } or {},
 })
 
+-- 4. Instruct Neovim to actively start target servers
+vim.lsp.enable({ 'gopls', 'eslint' })
+
+-- 5. Formatting & Hook automations on attachment
 vim.api.nvim_create_autocmd('LspAttach', {
   group = vim.api.nvim_create_augroup('LspFormatting', {}),
   callback = function(args)
@@ -211,29 +134,12 @@ vim.api.nvim_create_autocmd('LspAttach', {
       })
     end
 
-    if client.name == 'gopls' then
-      if not is_custom_golang_driver() then
-        -- golang_organize_imports(bufnr, true)
-      end
-
-      vim.api.nvim_create_autocmd('BufWritePre', {
-        callback = function(_)
-          -- vim.lsp.buf.format()
-          -- golang_fix_all(bufnr, false)
-          if not is_custom_golang_driver() then
-            -- golang_organize_imports(bufnr, false)
-          end
-        end,
-      })
-    end
-
-    -- let eslint handle fmting
+    -- Let eslint handle formatting
     if client.name == 'eslint' then
       vim.api.nvim_create_autocmd('BufWritePre', {
         buffer = bufnr,
         command = 'EslintFixAll',
       })
-
       client.server_capabilities.documentFormattingProvider = true
     elseif client.name == 'tsserver' then
       client.server_capabilities.documentFormattingProvider = false
@@ -241,26 +147,6 @@ vim.api.nvim_create_autocmd('LspAttach', {
   end,
 })
 
--- go install github.com/nametake/golangci-lint-langserver@latest
--- local lspconfig = require 'lspconfig'
--- local configs = require 'lspconfig/configs'
---
--- if not configs.golangcilsp then
---   configs.golangcilsp = {
---     default_config = {
---       cmd = { 'golangci-lint-langserver' },
---       root_dir = lspconfig.util.root_pattern('.git', 'go.mod'),
---       init_options = {
---         command = { 'golangci-lint', 'run', '--enable-all', '--disable', 'lll', '--out-format', 'json', '--issues-exit-code=1' },
---       },
---     },
---   }
--- end
--- lspconfig.golangci_lint_ls.setup {
---   filetypes = { 'go', 'gomod' },
--- }
-
--- templ
+-- Templ filetype tracking
 vim.filetype.add { extension = { templ = 'templ' } }
 vim.api.nvim_create_autocmd({ 'BufWritePre' }, { pattern = { '*.templ' }, callback = vim.lsp.buf.format })
-
