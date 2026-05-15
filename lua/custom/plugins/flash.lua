@@ -8,7 +8,7 @@ require('flash').setup {
   },
   modes = {
     search = {
-      enabled = true,
+      enabled = false,
       highlight = { backdrop = true },
     },
   },
