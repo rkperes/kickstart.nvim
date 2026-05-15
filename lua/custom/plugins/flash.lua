@@ -1,63 +1,21 @@
-return {
-  {
-    'folke/flash.nvim',
-    event = 'VeryLazy',
-    ---@type Flash.Config
-    opts = {
-      label = {
-        rainbow = {
-          enabled = true,
-        },
-      },
-      modes = {
-        search = {
-          enabled = true,
-          highlight = { backdrop = true },
-        },
-      },
+vim.pack.add { 'https://github.com/folke/flash.nvim' }
+
+require('flash').setup {
+  label = {
+    rainbow = {
+      enabled = true,
     },
-    -- stynua: ignore
-    keys = {
-      {
-        '<C-s>',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('flash').jump()
-        end,
-        desc = 'Flash',
-      },
-      {
-        '<C-S-s>',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('flash').treesitter()
-        end,
-        desc = 'Flash Treesitter',
-      },
-      {
-        'r',
-        mode = 'o',
-        function()
-          require('flash').remote()
-        end,
-        desc = 'Remote Flash',
-      },
-      {
-        'R',
-        mode = { 'o', 'x' },
-        function()
-          require('flash').treesitter_search()
-        end,
-        desc = 'Treesitter Search',
-      },
-      {
-        '<c-s>',
-        mode = { 'c' },
-        function()
-          require('flash').toggle()
-        end,
-        desc = 'Toggle Flash Search',
-      },
+  },
+  modes = {
+    search = {
+      enabled = true,
+      highlight = { backdrop = true },
     },
   },
 }
+
+vim.keymap.set({ 'n', 'x', 'o' }, '<C-s>', function() require('flash').jump() end, { desc = 'Flash' })
+vim.keymap.set({ 'n', 'x', 'o' }, '<C-S-s>', function() require('flash').treesitter() end, { desc = 'Flash Treesitter' })
+vim.keymap.set('o', 'r', function() require('flash').remote() end, { desc = 'Remote Flash' })
+vim.keymap.set({ 'o', 'x' }, 'R', function() require('flash').treesitter_search() end, { desc = 'Treesitter Search' })
+vim.keymap.set('c', '<c-s>', function() require('flash').toggle() end, { desc = 'Toggle Flash Search' })

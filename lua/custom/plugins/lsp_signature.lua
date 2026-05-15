@@ -1,10 +1,3 @@
-return {
-  {
-    'ray-x/lsp_signature.nvim',
-    event = 'VeryLazy',
-    opts = {},
-    config = function(_, opts)
-      require('lsp_signature').setup(opts)
-    end,
-  },
-}
+vim.pack.add { 'https://github.com/ray-x/lsp_signature.nvim' }
+
+require('lsp_signature').setup {}

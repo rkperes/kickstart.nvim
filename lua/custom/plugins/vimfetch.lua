@@ -1,5 +1,1 @@
-return {
-  {
-    'wsdjeg/vim-fetch',
-  },
-}
+vim.pack.add { 'https://github.com/wsdjeg/vim-fetch' }

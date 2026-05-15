@@ -1,23 +1,14 @@
-return {
-  {
-    'nvim-neotest/neotest',
-    dependencies = {
-      -- Neotest dependencies
-      'nvim-neotest/nvim-nio',
-      'nvim-lua/plenary.nvim',
-      'antoinemadec/FixCursorHold.nvim',
-      'nvim-treesitter/nvim-treesitter',
-      -- Our adapter
-      'sluongng/neotest-bazel',
-    },
-    config = function()
-      local neotest = require 'neotest'
-      neotest.setup {
-        adapters = {
-          -- Our adapter registration
-          require 'neotest-bazel',
-        },
-      }
-    end,
+vim.pack.add {
+  'https://github.com/nvim-neotest/neotest',
+  'https://github.com/nvim-neotest/nvim-nio',
+  'https://github.com/nvim-lua/plenary.nvim',
+  'https://github.com/antoinemadec/FixCursorHold.nvim',
+  'https://github.com/nvim-treesitter/nvim-treesitter',
+  'https://github.com/sluongng/neotest-bazel',
+}
+
+require('neotest').setup {
+  adapters = {
+    require 'neotest-bazel',
   },
 }
