@@ -9,7 +9,14 @@ local function toggle_line_annotations()
   vim.cmd ':IBLToggle'
 end
 
+-- Disable line annotations to allow raw-copying
+local function toggle_line_number_type()
+  vim.o.nu = true
+  vim.o.relativenumber = not vim.o.relativenumber
+end
+
 vim.keymap.set('n', '<leader>C', toggle_line_annotations, { desc = 'Toggle line annotations (allow raw copy)' })
+vim.keymap.set('n', '<leader>L', toggle_line_number_type, { desc = 'Toggle line number type (absolute/relative)' })
 
 local function get_current_function_name()
   -- Get the current buffer
