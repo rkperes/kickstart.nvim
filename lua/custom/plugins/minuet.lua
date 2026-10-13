@@ -24,8 +24,8 @@ require('minuet').setup {
     show_on_completion_menu = false, -- never overlap with blink popup
 
     keymap = {
-      accept = '<A-y>',
-      accept_line = '<A-l>',
+      accept = '<C-S-l>',
+      accept_line = '<C-l>',
       accept_n_lines = '<A-z>',
       prev = '<A-[>',
       next = '<A-]>',
